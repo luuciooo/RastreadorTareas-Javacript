@@ -1,85 +1,89 @@
+//Se importan los modulos FS para trabajar con el sistemas de archivos y PATH para trabajar con rutas de archivo
 const fs = require('fs');
 const path = require('path');
 
-const TASK_FILE= 'tasks.json';
+//Definicion de variables que vamos a usar : ruta de archivo y array
+const TASK_FILE = 'tasks.json';
+let tasks = [];
 
-let tasks= [];
+// Carga de tareas desde el archivo
+fs.readFile(TASK_FILE, (err, data) => {
+    if (err) {
+        if (err.code === 'ENOENT') {
+            // Creacion del archivo si no extiste
+            fs.writeFileSync(TASK_FILE, '[]');
+        } else {
+            console.error(err);
+            process.exit(1);
+        }
+    } else {
+        tasks = JSON.parse(data);
+    }
+});
 
-function addTask(description){
-    // Creamos una tarea 
+//Funcion agregar tarea
+function addTask(description) {
     const task = {
-        id: tasks.length+1,
+        id: tasks.length + 1,
         description,
         status: 'todo',
-        createdAt : new Date(),
-        updateAt : new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
     };
     tasks.push(task);
     saveTasks();
-    console.log(`Tarea agregada con éxito (ID: ${task.id})`);
-};
-function listTasks(){
-    fs.readFile('tasks.json',(err, data)=>{
-        if(err){
-            console.log(err);
-            return;
-        }
-        const tasks = JSON.parse(data);
-        console.log('Lista de tareas: ');
-        tasks.forEach((task, index) => {
-            console.log(`${index + 1}. ${task.description}`);
-        });
-    });
-}
-function deleteTask(taskIndex){
-    fs.readFile('tasks.json', (err, data)=>{
-        if(err){
-            console.log(err)
-            return;
-        }
-        const tasks = JSON.parse(data);
-        if (taskIndex > 0 && taskIndex <= tasks.length) {
-        tasks.splice(taskIndex -1,1)
-        fs.writeFile('tasks.json', JSON.stringify(tasks), (err) => {
-            if(err){
-                console.log(err)
-            }else{
-                console.log('Tarea Eliminada con exito!')
-            }
-        });
-        } else{
-            console.log('Indice de Tarea invalido')
-        }
-    })
+    console.log(`La Tarea (ID: ${task.id}) ha sido creada con exito!`);
 }
 
-function completeTask(taskIndex){
-    fs.readFile('tasks.json', (err,data) =>{
-        if(err){
-            console.log(err);
-            return;
-        }
-        const tasks = JSON.parse(data);
-        if (taskIndex > 0 && taskIndex <= tasks.length) {
-            tasks[taskIndex - 1].completed = true;
-            fs.writeFile('tasks.json', JSON.stringify(tasks), (err) => {
-            if(err){
-                console.log(err)
-            }else{
-                console.log('Tarea Terminada con exito!')
-            }
-        });
-        }else{
-            console.log('Indice de Tarea invalido')
-        }
-    })
+//Funcion Actualizar tarea
+function updateTask(id, description) {
+    const task = tasks.find((task) => task.id === id);
+    if (task) {
+        task.description = description;
+        task.updatedAt = new Date();
+        saveTasks();
+        console.log(`La Tarea (ID: ${task.id}) ha sido actualizada con exito!`);
+    } else {
+        console.log(`No se encontro ninguna tarea con el ID ${id}`);
+    }
 }
 
-function saveTasks(){
+// Funcion Eliminar tarea
+function deleteTask(id) {
+    const index = tasks.findIndex((task) => task.id === id);
+    if (index !== -1) {
+        tasks.splice(index, 1);
+        saveTasks();
+        console.log(`La Tarea (ID: ${task.id}) ha sido actualizada con exito!`);
+    } else {
+        console.log(`No se encontro ninguna tarea con el ID ${id}`);
+    }
+}
+
+//Funcion marcar una tarea
+function markTask(id, status) {
+    const task = tasks.find((task) => task.id === id);
+    if (task) {
+        task.status = status;
+        task.updatedAt = new Date();
+        saveTasks();
+        console.log(`La Tarea (ID: ${id}) ha sido marcada como ${status} con exito!`);
+    } else {
+        console.log(`No se encontro ninguna tarea con el ID ${id}`);
+    }
+}
+
+//Funcion para listar todas o por diferentes estados
+function listTasks(status) {
+    let filteredTasks = tasks;
+    if (status) {
+        filteredTasks = tasks.filter((task) => task.status === status);
+    }
+    console.log(filteredTasks.map((task) => `${task.id}: ${task.description} (${task.status})`).join('\n'));
+}
+
+//Funcion Guardar
+function saveTasks() {
     fs.writeFileSync(TASK_FILE, JSON.stringify(tasks, null, 2));
 }
-
-addTask('Mi primera tarea');
-completeTask(1)
-
 
