@@ -54,7 +54,7 @@ function deleteTask(id) {
     if (index !== -1) {
         tasks.splice(index, 1);
         saveTasks();
-        console.log(`La Tarea (ID: ${task.id}) ha sido actualizada con exito!`);
+        console.log(`La Tarea (ID: ${id}) ha sido actualizada con exito!`);
     } else {
         console.log(`No se encontro ninguna tarea con el ID ${id}`);
     }
@@ -79,6 +79,7 @@ function listTasks(status) {
     if (status) {
         filteredTasks = tasks.filter((task) => task.status === status);
     }
+    status != null ? console.log(`Lista de Tareas (${status}) :`) : console.log(`Lista de Tareas :`);
     console.log(filteredTasks.map((task) => `${task.id}: ${task.description} (${task.status})`).join('\n'));
 }
 
@@ -87,3 +88,15 @@ function saveTasks() {
     fs.writeFileSync(TASK_FILE, JSON.stringify(tasks, null, 2));
 }
 
+addTask("Comprar Sanahoria")
+addTask("Comprar fruta")
+addTask("Comprar analgesicos")
+addTask("Conseguir trabajo")
+listTasks()
+updateTask(1, "Comprar una motaza")
+markTask(2, "in-progress")
+markTask(3, "done")
+listTasks("in-progress")
+listTasks("done")
+deleteTask(4)
+listTasks()

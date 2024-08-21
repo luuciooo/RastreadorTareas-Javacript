@@ -1,1 +1,23 @@
-[{"id":1,"description":"Comprar Leche","status":"todo","createdAt":"2024-08-21T17:10:12.669Z","updateAt":"2024-08-21T17:10:12.669Z","completed":true}]
+[
+  {
+    "id": 1,
+    "description": "Comprar una motaza",
+    "status": "todo",
+    "createdAt": "2024-08-21T21:06:00.313Z",
+    "updatedAt": "2024-08-21T21:06:00.331Z"
+  },
+  {
+    "id": 2,
+    "description": "Comprar fruta",
+    "status": "in-progress",
+    "createdAt": "2024-08-21T21:06:00.325Z",
+    "updatedAt": "2024-08-21T21:06:00.333Z"
+  },
+  {
+    "id": 3,
+    "description": "Comprar analgesicos",
+    "status": "done",
+    "createdAt": "2024-08-21T21:06:00.327Z",
+    "updatedAt": "2024-08-21T21:06:00.335Z"
+  }
+]
