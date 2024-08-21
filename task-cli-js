@@ -1,6 +1,85 @@
-const fs = requiere('fs');
-const path = requiere('path');
+const fs = require('fs');
+const path = require('path');
 
 const TASK_FILE= 'tasks.json';
 
 let tasks= [];
+
+function addTask(description){
+    // Creamos una tarea 
+    const task = {
+        id: tasks.length+1,
+        description,
+        status: 'todo',
+        createdAt : new Date(),
+        updateAt : new Date()
+    };
+    tasks.push(task);
+    saveTasks();
+    console.log(`Tarea agregada con éxito (ID: ${task.id})`);
+};
+function listTasks(){
+    fs.readFile('tasks.json',(err, data)=>{
+        if(err){
+            console.log(err);
+            return;
+        }
+        const tasks = JSON.parse(data);
+        console.log('Lista de tareas: ');
+        tasks.forEach((task, index) => {
+            console.log(`${index + 1}. ${task.description}`);
+        });
+    });
+}
+function deleteTask(taskIndex){
+    fs.readFile('tasks.json', (err, data)=>{
+        if(err){
+            console.log(err)
+            return;
+        }
+        const tasks = JSON.parse(data);
+        if (taskIndex > 0 && taskIndex <= tasks.length) {
+        tasks.splice(taskIndex -1,1)
+        fs.writeFile('tasks.json', JSON.stringify(tasks), (err) => {
+            if(err){
+                console.log(err)
+            }else{
+                console.log('Tarea Eliminada con exito!')
+            }
+        });
+        } else{
+            console.log('Indice de Tarea invalido')
+        }
+    })
+}
+
+function completeTask(taskIndex){
+    fs.readFile('tasks.json', (err,data) =>{
+        if(err){
+            console.log(err);
+            return;
+        }
+        const tasks = JSON.parse(data);
+        if (taskIndex > 0 && taskIndex <= tasks.length) {
+            tasks[taskIndex - 1].completed = true;
+            fs.writeFile('tasks.json', JSON.stringify(tasks), (err) => {
+            if(err){
+                console.log(err)
+            }else{
+                console.log('Tarea Terminada con exito!')
+            }
+        });
+        }else{
+            console.log('Indice de Tarea invalido')
+        }
+    })
+}
+
+function saveTasks(){
+    fs.writeFileSync(TASK_FILE, JSON.stringify(tasks, null, 2));
+}
+
+addTask('Mi primera tarea');
+completeTask(1)
+
+
