@@ -7,19 +7,20 @@ const TASK_FILE = 'tasks.json';
 let tasks = [];
 
 // Carga de tareas desde el archivo
-fs.readFile(TASK_FILE, (err, data) => {
-    if (err) {
-        if (err.code === 'ENOENT') {
-            // Creacion del archivo si no extiste
-            fs.writeFileSync(TASK_FILE, '[]');
-        } else {
-            console.error(err);
-            process.exit(1);
-        }
+try {
+    const data = fs.readFileSync(TASK_FILE, 'utf8');
+    tasks = JSON.parse(data);
+} catch (err) {
+    if (err.code === 'ENOENT') {
+        // Creacion del archivo si no extiste
+        fs.writeFileSync(TASK_FILE, '[]');
+        tasks = [];
     } else {
-        tasks = JSON.parse(data);
+        console.error(err);
+        process.exit(1);
     }
-});
+}
+
 
 //Funcion agregar tarea
 function addTask(description) {
@@ -29,7 +30,7 @@ function addTask(description) {
         status: 'todo',
         createdAt: new Date(),
         updatedAt: new Date()
-    };
+    }
     tasks.push(task);
     saveTasks();
     console.log(`La Tarea (ID: ${task.id}) ha sido creada con exito!`);
@@ -88,15 +89,63 @@ function saveTasks() {
     fs.writeFileSync(TASK_FILE, JSON.stringify(tasks, null, 2));
 }
 
-addTask("Comprar Sanahoria")
-addTask("Comprar fruta")
-addTask("Comprar analgesicos")
-addTask("Conseguir trabajo")
-listTasks()
-updateTask(1, "Comprar una motaza")
-markTask(2, "in-progress")
-markTask(3, "done")
-listTasks("in-progress")
-listTasks("done")
-deleteTask(4)
-listTasks()
+//Variable de comandos
+const commands = {
+    add: (description) => addTask(description),
+    update: (id, description) => updateTask(id, description),
+    delete: (id) => deleteTask(id),
+    'mark-in-progress': (id) => markTask(id, 'in-progress'),
+    'mark-done': (id) => markTask(id, 'done'),
+    list: (status) => listTasks(status)
+};
+
+// Extracción del comando
+const args = process.argv.slice(2);
+const command = args.shift();
+
+// Verifica si existe el comando en el objeto de comandos
+
+if (commands[command]) {
+    switch (command) {
+        case 'add':
+            const description = args.join(' ');
+            commands[command](description);
+            break;
+        case 'update':
+            const id = parseInt(args[0], 10);
+            const newDescription = args.slice(1).join(' ');
+            commands[command](id, newDescription);
+            break;
+        case 'delete':
+            const deleteId = parseInt(args[0], 10);
+            commands[command](deleteId);
+            break;
+        case 'mark-in-progress':
+            const ProgressId = parseInt(args[0], 10);
+            commands[command](ProgressId,"done");
+            break;
+        case 'mark-done':
+            const DoneId = parseInt(args[0], 10);
+            commands[command](DoneId,"done");
+            break;
+        case 'list':
+            const listStatus = args[0];
+            commands[command](listStatus);
+            break;
+    }
+} else {
+    console.log(`Unknown command: ${command}`);
+    process.exit(1);
+}
+
+
+
+
+
+
+
+
+//Transforma id que paso como cadena de texto
+//const id = parseInt(args[0], 10);
+//Transforma cadenas de texto en una unica cadena
+//const description = args.slice(1).join(' ');
